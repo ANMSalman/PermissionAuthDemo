@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using PermissionAuthDemo.Server.Extensions;
 using PermissionAuthDemo.Server.Middleware;
 using System.IO;
+using System.Reflection;
 
 namespace PermissionAuthDemo.Server
 {
@@ -26,6 +27,7 @@ namespace PermissionAuthDemo.Server
         {
 
             services.AddCors();
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddCurrentUserService();
             services.AddDatabase(Configuration);
             services.AddIdentity();

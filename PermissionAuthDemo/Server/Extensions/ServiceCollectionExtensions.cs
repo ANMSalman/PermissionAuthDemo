@@ -75,10 +75,10 @@ namespace PermissionAuthDemo.Server.Extensions
         }
         internal static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            services.AddTransient<IRoleClaimService, RoleClaimService>();
-            services.AddTransient<ITokenService, IdentityService>();
-            services.AddTransient<IRoleService, RoleService>();
-            services.AddTransient<IUserService, UserService>();
+            services.AddScoped<IRoleClaimService, RoleClaimService>();
+            services.AddScoped<ITokenService, IdentityService>();
+            services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IUserService, UserService>();
             return services;
         }
 
@@ -93,7 +93,7 @@ namespace PermissionAuthDemo.Server.Extensions
                     authentication.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     authentication.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(async bearer =>
+                .AddJwtBearer(bearer =>
                 {
                     bearer.RequireHttpsMetadata = false;
                     bearer.SaveToken = true;
