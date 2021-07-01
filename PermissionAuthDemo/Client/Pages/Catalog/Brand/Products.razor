@@ -1,0 +1,21 @@
+﻿@page "/catalog/products"
+
+<PageTitle Title="Products" Description="Manage Products" />
+
+<div class="mt-6">
+    <AuthorizeView Policy="@Permissions.Products.Search">
+        <MudButton Class="ml-2 mt-2" Variant="Variant.Filled" Color="Color.Info">Search</MudButton>
+    </AuthorizeView>
+    <AuthorizeView Policy="@Permissions.Products.Create">
+        <MudButton Class="ml-2 mt-2" Variant="Variant.Filled" Color="Color.Success">Create</MudButton>
+    </AuthorizeView>
+    <AuthorizeView Policy="@Permissions.Products.Edit">
+        <MudButton Class="ml-2 mt-2" Variant="Variant.Filled" Color="Color.Warning">Edit</MudButton>
+    </AuthorizeView>
+    <AuthorizeView Policy="@Permissions.Products.Delete">
+        <MudButton Class="ml-2 mt-2" Variant="Variant.Filled" Color="Color.Error">Delete</MudButton>
+    </AuthorizeView>
+    <AuthorizeView Policy="@Permissions.Products.Export">
+        <MudButton Class="ml-2 mt-2" Variant="Variant.Filled" Color="Color.Default">Export</MudButton>
+    </AuthorizeView>
+</div>

@@ -1,17 +1,26 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<MudThemeProvider Theme="_currentTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-    <div class="main">
-        <div class="top-row px-4">
-            <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
-        </div>
+<AuthorizeView>
+    <NotAuthorized>
+        <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center" Style="height: 100vh;">
+            <MudPaper Elevation="25" Class="pa-8" Style="width: 500px;">
+                @Body
+            </MudPaper>
+        </MudContainer>
+    </NotAuthorized>
+    <Authorized>
+        <MudLayout>
+            <MainBody>
+                @Body
+            </MainBody>
+        </MudLayout>
+    </Authorized>
+</AuthorizeView>
 
-        <div class="content px-4">
-            @Body
-        </div>
-    </div>
-</div>
+<MudScrollToTop>
+    <MudFab Color="Color.Tertiary" Icon="@Icons.Filled.ArrowUpward" />
+</MudScrollToTop>

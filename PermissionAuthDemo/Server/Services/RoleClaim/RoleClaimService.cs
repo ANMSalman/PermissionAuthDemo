@@ -79,7 +79,7 @@ namespace PermissionAuthDemo.Server.Services.RoleClaim
                 var roleClaim = _mapper.Map<AppRoleClaim>(request);
                 await _db.RoleClaims.AddAsync(roleClaim);
                 await _db.SaveChangesAsync();
-                return await Result<string>.SuccessAsync(string.Format("Role Claim {0} created.", request.Value));
+                return await Result<string>.SuccessAsync($"Role Claim {request.Value} created.");
             }
             else
             {
@@ -100,7 +100,8 @@ namespace PermissionAuthDemo.Server.Services.RoleClaim
                     existingRoleClaim.RoleId = request.RoleId;
                     _db.RoleClaims.Update(existingRoleClaim);
                     await _db.SaveChangesAsync();
-                    return await Result<string>.SuccessAsync(string.Format("Role Claim {0} for Role {1} updated.", request.Value, existingRoleClaim.Role.Name));
+                    return await Result<string>.SuccessAsync(
+                        $"Role Claim {request.Value} for Role {existingRoleClaim.Role.Name} updated.");
                 }
             }
         }
@@ -113,8 +114,9 @@ namespace PermissionAuthDemo.Server.Services.RoleClaim
             if (existingRoleClaim != null)
             {
                 _db.RoleClaims.Remove(existingRoleClaim);
-                await _db.SaveChangesAsync(_currentUserService.UserId);
-                return await Result<string>.SuccessAsync(string.Format("Role Claim {0} for {1} Role deleted.", existingRoleClaim.ClaimValue, existingRoleClaim.Role.Name));
+                await _db.SaveChangesAsync();
+                return await Result<string>.SuccessAsync(
+                    $"Role Claim {existingRoleClaim.ClaimValue} for {existingRoleClaim.Role.Name} Role deleted.");
             }
             else
             {

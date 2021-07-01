@@ -1,0 +1,40 @@
+﻿<MudAppBar Color="Color.Info" Elevation="4">
+    <MudHidden Breakpoint="Breakpoint.MdAndUp">
+        <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+    </MudHidden>
+    <MudHidden Breakpoint="Breakpoint.Xs">
+        <div class="py-1 px-6 rounded-pill" style="background-color: white">
+            <MudText Color="Color.Info" Typo="Typo.h6" Align="Align.Center">Auth Demo</MudText>
+        </div>
+        <MudText Typo="Typo.h6" Class="ml-4">Admin Dashboard</MudText>
+    </MudHidden>
+    <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+        <div class="py-1 px-4 rounded-pill" style="background-color: white">
+            <MudText Color="Color.Info" Typo="Typo.subtitle2" Align="Align.Center">Auth Demo</MudText>
+        </div>
+        <MudText Typo="Typo.subtitle2" Class="ml-2">Admin Dashboard</MudText>
+    </MudHidden>
+    <MudAppBarSpacer />
+    <MudMenu Direction="Direction.Left" OffsetX="true" Dense="true" Class="mt-1 ml-4">
+        <ActivatorContent>
+            <MudAvatar Color="Color.Secondary">@FirstLetterOfName</MudAvatar>
+        </ActivatorContent>
+        <ChildContent>
+            <MudListItem Text="Account" Href="/account" Icon="@Icons.Material.Outlined.Person" />
+            <MudListItem Text="Logout" Icon="@Icons.Material.Filled.Logout" OnClick="Logout" />
+        </ChildContent>
+    </MudMenu>
+</MudAppBar>
+<MudDrawer @bind-Open="_drawerOpen" Elevation="25" ClipMode="DrawerClipMode.Always">
+    <NavMenu />
+</MudDrawer>
+<MudMainContent>
+    <MudHidden Breakpoint="Breakpoint.SmAndDown">
+        <MudToolBar DisableGutters="true">
+            <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@((e) => DrawerToggle())" Class="ml-3" />
+        </MudToolBar>
+    </MudHidden>
+        <MudContainer MaxWidth="MaxWidth.False" Class="mt-4 mb-8">
+            @ChildContent
+        </MudContainer>
+</MudMainContent>

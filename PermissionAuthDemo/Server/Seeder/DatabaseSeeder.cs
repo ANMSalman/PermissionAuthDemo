@@ -51,10 +51,10 @@ namespace PermissionAuthDemo.Server.Seeder
                 //Check if User Exists
                 var superUser = new AppUser
                 {
-                    FirstName = "Mukesh",
-                    LastName = "Murugan",
-                    Email = "mukesh@blazorhero.com",
-                    UserName = "mukesh",
+                    FirstName = "Mohamed",
+                    LastName = "Salman",
+                    Email = "mohamed.salman@itelasoft.com",
+                    UserName = "Salman",
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
                     CreatedOn = DateTime.Now,
@@ -101,7 +101,7 @@ namespace PermissionAuthDemo.Server.Seeder
                 {
                     FirstName = "John",
                     LastName = "Doe",
-                    Email = "john@blazorhero.com",
+                    Email = "john@itelasoft.com",
                     UserName = "johndoe",
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,

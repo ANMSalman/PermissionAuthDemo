@@ -1,0 +1,87 @@
+﻿@page "/identity/roles"
+@attribute [Authorize(Policy = Permissions.Roles.View)]
+@using System.ComponentModel.Design
+@using PermissionAuthDemo.Shared.Responses.Identity
+
+
+<PageTitle Title="Roles" Description="Manage Roles." />
+@if (!_loaded)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+    <MudTable Hover="true" Elevation="25" Items="_roleList" Dense="@_dense" Bordered="@_bordered" Striped="@_striped" Filter="new Func<RoleResponse, bool>(Search)" @bind-role="_role">
+        <ToolBarContent>
+            <div class="justify-center mud-text-align-center">
+                @if (_canCreateRoles)
+                {
+                    <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => InvokeModal())" StartIcon="@Icons.Material.Filled.Add" IconColor="Color.Surface">Create</MudButton>
+                    <MudButton DisableElevation Variant="Variant.Filled" OnClick="GetRolesAsync" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">Reload</MudButton>
+                }
+                else
+                {
+                    <MudButton DisableElevation Variant="Variant.Filled" OnClick="GetRolesAsync" StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Secondary">Reload</MudButton>
+                }
+            </div>
+            <MudToolBarSpacer />
+            @if (_canSearchRoles)
+            {
+                <MudTextField @bind-Value="_searchString" Immediate="true" Placeholder="Search for Roles..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-3"></MudTextField>
+            }
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<RoleResponse, object>(x => x.Id)">Id</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<RoleResponse, object>(x => x.Name)">Role</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<RoleResponse, object>(x => x.Description)">Description</MudTableSortLabel></MudTh>
+            <MudTh Style="text-align:right">Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Role">
+                <MudHighlighter Text="@context.Name" HighlightedText="@_searchString" />
+            </MudTd>
+            <MudTd DataLabel="Description">
+                <MudHighlighter Text="@context.Description" HighlightedText="@_searchString" />
+            </MudTd>
+            <MudTd DataLabel="Actions" Style="text-align: right">
+                @if (_canViewRoleClaims || _canEditRoles || _canDeleteRoles)
+                    {
+                    <MudMenu Label="Actions" Variant="Variant.Filled" DisableElevation="true" EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Secondary" Direction="Direction.Left" OffsetX="true">
+                        @if (_canViewRoleClaims)
+                            {
+                            <MudMenuItem @onclick="@(() => ManagePermissions(@context.Id))">Manage Permission</MudMenuItem>
+                            }
+                        @if (_canEditRoles)
+                            {
+                            <MudMenuItem @onclick="@(() => InvokeModal(@context.Id))">Edit</MudMenuItem>
+                            }
+                        @if (_canDeleteRoles)
+                            {
+                            <MudMenuItem @onclick="@(() => Delete(@context.Id))">Delete</MudMenuItem>
+                            }
+                    </MudMenu>
+                    }
+                    else
+                    {
+                    <MudButton Variant="Variant.Filled"
+                               DisableElevation="true"
+                               StartIcon="@Icons.Material.Filled.DoNotTouch"
+                               IconColor="Color.Secondary"
+                               Size="Size.Small"
+                               Color="Color.Surface">
+                        No Allowed Actions
+                    </MudButton>
+                    }
+            </MudTd>
+        </RowTemplate>
+        <FooterContent>
+            <MudSwitch @bind-Checked="@_dense" Color="Color.Secondary" Style="margin-left: 5px;">Dense</MudSwitch>
+            <MudSwitch @bind-Checked="@_striped" Color="Color.Tertiary" Style="margin-left: 5px;">Striped</MudSwitch>
+            <MudSwitch @bind-Checked="@_bordered" Color="Color.Warning" Style="margin-left: 5px;">Bordered</MudSwitch>
+        </FooterContent>
+        <PagerContent>
+            <TablePager />
+        </PagerContent>
+    </MudTable>
+}

@@ -6,22 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>PermissionAuthDemo</title>
     <base href="/" />
-    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
     <link href="PermissionAuthDemo.Client.styles.css" rel="stylesheet" />
     <link href="manifest.json" rel="manifest" />
     <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
 </head>
 
-<body>
-    <div id="app">Loading...</div>
+<body style="font-family: Montserrat !important">
+<div id="app">
 
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
+    <div style="height:100%;width:100%;margin:0;position:fixed;">
+        <div class="mud-wasm"></div>
+        <div class="mud-wasm" style="animation-direction:alternate-reverse;animation-duration:4s;"></div>
+        <div class="mud-wasm" style="animation-duration:5s;"></div>
+        <div class="mud-wasm-cont ">
+            <h1 style="color: white; font-size: 70px;">Offers Exchange</h1>
+        </div>
     </div>
-    <script src="_framework/blazor.webassembly.js"></script>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+<script src="_framework/blazor.webassembly.js"></script>
+<script src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script>navigator.serviceWorker.register('service-worker.js');</script>
 </body>
 

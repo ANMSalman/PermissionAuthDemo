@@ -1,37 +1,54 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
-    <a class="navbar-brand" href="">PermissionAuthDemo</a>
-    <button class="navbar-toggler" @onclick="ToggleNavMenu">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-</div>
+﻿@using System.Security.Claims
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </li>
-    </ul>
-</div>
+<MudNavMenu>
+    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Home">Home</MudNavLink>
+   
+    @if (_canViewUsers || _canViewRoles)
+    {
+        <MudListSubheader Class="mt-2 mb-n2">Administration</MudListSubheader>
+        @if (_canViewUsers)
+        {
+            <MudNavLink Href="/identity/users" Icon="@Icons.Material.Outlined.Person">
+                Users
+            </MudNavLink>
+        }
+        @if (_canViewRoles)
+        {
+            <MudNavLink Href="/identity/roles" Icon="@Icons.Material.Outlined.Person">Roles</MudNavLink>
+        }
+    }
+    @if (_canViewProducts || _canViewBrands)
+    {
+        <MudListSubheader Class="mt-2 mb-n2">Catalog Management</MudListSubheader>
+        @if (_canViewProducts)
+        {
+            <MudNavLink Href="/catalog/products" Icon="@Icons.Material.Outlined.CallToAction">
+                Products
+            </MudNavLink>
+        }
+        @if (_canViewBrands)
+        {
+            <MudNavLink Href="/catalog/brands" Icon="@Icons.Material.Outlined.CallToAction">
+                Brands
+            </MudNavLink>
+        }
+    }
+</MudNavMenu>
 
 @code {
-    private bool collapseNavMenu = true;
+    private ClaimsPrincipal _authenticationStateProviderUser;
+    
+    private bool _canViewRoles;
+    private bool _canViewUsers;
+    private bool _canViewProducts;
+    private bool _canViewBrands;
 
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
+    protected override async Task OnParametersSetAsync()
     {
-        collapseNavMenu = !collapseNavMenu;
+        _authenticationStateProviderUser = await _stateProvider.GetAuthenticationStateProviderUserAsync();
+        _canViewRoles = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Roles.View)).Succeeded;
+        _canViewUsers = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Users.View)).Succeeded;
+        _canViewProducts = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Products.View)).Succeeded;
+        _canViewBrands = (await _authorizationService.AuthorizeAsync(_authenticationStateProviderUser, Permissions.Brands.View)).Succeeded;
     }
 }

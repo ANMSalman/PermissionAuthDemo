@@ -1,0 +1,21 @@
+﻿@page "/catalog/brands"
+
+<PageTitle Title="Brands" Description="Manage Brands" />
+
+<div class="mt-6">
+    <AuthorizeView Policy="@Permissions.Brands.Search">
+        <MudButton Class="ml-2 mt-2" Variant="Variant.Filled" Color="Color.Info">Search</MudButton>
+    </AuthorizeView>
+    <AuthorizeView Policy="@Permissions.Brands.Create">
+        <MudButton Class="ml-2 mt-2" Variant="Variant.Filled" Color="Color.Success">Create</MudButton>
+    </AuthorizeView>
+    <AuthorizeView Policy="@Permissions.Brands.Edit">
+        <MudButton Class="ml-2 mt-2" Variant="Variant.Filled" Color="Color.Warning">Edit</MudButton>
+    </AuthorizeView>
+    <AuthorizeView Policy="@Permissions.Brands.Delete">
+        <MudButton Class="ml-2 mt-2" Variant="Variant.Filled" Color="Color.Error">Delete</MudButton>
+    </AuthorizeView>
+    <AuthorizeView Policy="@Permissions.Brands.Export">
+        <MudButton Class="ml-2 mt-2" Variant="Variant.Filled" Color="Color.Default">Export</MudButton>
+    </AuthorizeView>
+</div>

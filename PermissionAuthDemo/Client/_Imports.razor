@@ -1,10 +1,50 @@
-﻿@using System.Net.Http
+﻿
+@using System.Net.Http
 @using System.Net.Http.Json
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.AspNetCore.Components.WebAssembly.Http
 @using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Identity;
+@using MudBlazor
+@using Blazored.LocalStorage;
+@using Blazored.FluentValidation
+
+
 @using PermissionAuthDemo.Client
 @using PermissionAuthDemo.Client.Shared
+@using PermissionAuthDemo.Client.Shared.Dialogs
+@using PermissionAuthDemo.Client.Shared.Components
+@using Managers.Identity.Authentication
+@using Managers.Identity.Roles
+@using Managers.Identity.RoleClaims
+@using Managers.Identity.Users
+@using Managers.Interceptors
+
+@using PermissionAuthDemo.Shared.Constants
+@using PermissionAuthDemo.Client.Settings
+
+@using PermissionAuthDemo.Shared.Requests.Identity
+
+@using PermissionAuthDemo.Client.Pages.Authentication
+
+@using PermissionAuthDemo.Client.Authentication
+@using PermissionAuthDemo.Client.Extensions
+
+
+@attribute [Authorize]
+@inject IAuthenticationManager _authenticationManager
+@inject NavigationManager _navigationManager
+@inject AppUserStateProvider _stateProvider
+@inject IAuthorizationService _authorizationService
+@inject ISnackbar _snackBar
+@inject IDialogService _dialogService
+@inject HttpClient _httpClient
+@inject IHttpInterceptorManager _interceptor
+@inject IUserManager _userManager
+@inject ILocalStorageService _localStorage;
+@inject IJSRuntime _jsRuntime;
