@@ -24,9 +24,5 @@
     <ProjectReference Include="..\Shared\PermissionAuthDemo.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Files\" />
-  </ItemGroup>
-
 
 </Project>
