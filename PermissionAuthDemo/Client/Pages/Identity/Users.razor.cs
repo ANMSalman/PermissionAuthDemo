@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using MudBlazor;
+using PermissionAuthDemo.Shared.Constants;
+using PermissionAuthDemo.Shared.Responses.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.JSInterop;
-using MudBlazor;
-using PermissionAuthDemo.Shared.Constants;
-using PermissionAuthDemo.Shared.Responses.Identity;
 
 namespace PermissionAuthDemo.Client.Pages.Identity
 {
@@ -100,7 +99,7 @@ namespace PermissionAuthDemo.Client.Pages.Identity
 
         private void ManageRoles(string userId, string email)
         {
-            if (email == "mukesh@blazorhero.com") _snackBar.Add("Not Allowed.", Severity.Error);
+            if (email == "mohamed.salman@itelasoft.com") _snackBar.Add("Not Allowed.", Severity.Error);
             else _navigationManager.NavigateTo($"/identity/user-roles/{userId}");
         }
     }

@@ -3,19 +3,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using PermissionAuthDemo.Server.Data.Entities;
+using PermissionAuthDemo.Server.Exceptions;
 using PermissionAuthDemo.Server.Services.CurrentUser;
 using PermissionAuthDemo.Shared.Constants;
 using PermissionAuthDemo.Shared.Requests.Identity;
 using PermissionAuthDemo.Shared.Responses.Identity;
 using PermissionAuthDemo.Shared.Wrappers;
-using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Text.Encodings.Web;
+using System.Threading;
 using System.Threading.Tasks;
-using PermissionAuthDemo.Server.Exceptions;
 
 namespace PermissionAuthDemo.Server.Services.User
 {
@@ -38,14 +36,14 @@ namespace PermissionAuthDemo.Server.Services.User
             _currentUserService = currentUserService;
         }
 
-        public async Task<Result<List<UserResponse>>> GetAllAsync()
+        public async Task<Result<List<UserResponse>>> GetAllAsync(CancellationToken cancellationToken)
         {
-            var users = await _userManager.Users.ToListAsync();
+            var users = await _userManager.Users.ToListAsync(cancellationToken: cancellationToken);
             var result = _mapper.Map<List<UserResponse>>(users);
             return await Result<List<UserResponse>>.SuccessAsync(result);
         }
 
-        public async Task<IResult> RegisterAsync(RegisterRequest request, string origin)
+        public async Task<IResult> RegisterAsync(RegisterRequest request, string origin, CancellationToken cancellationToken)
         {
             var userWithSameUserName = await _userManager.FindByNameAsync(request.UserName);
             if (userWithSameUserName != null)
@@ -65,7 +63,7 @@ namespace PermissionAuthDemo.Server.Services.User
 
             if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
             {
-                var userWithSamePhoneNumber = await _userManager.Users.FirstOrDefaultAsync(x => x.PhoneNumber == request.PhoneNumber);
+                var userWithSamePhoneNumber = await _userManager.Users.FirstOrDefaultAsync(x => x.PhoneNumber == request.PhoneNumber, cancellationToken: cancellationToken);
                 if (userWithSamePhoneNumber != null)
                 {
                     return await Result.FailAsync($"Phone number {request.PhoneNumber} is already registered.");
@@ -85,7 +83,7 @@ namespace PermissionAuthDemo.Server.Services.User
                     //    var verificationUri = await SendVerificationEmail(user, origin);
                     //    var mailRequest = new MailRequest
                     //    {
-                    //        From = "mail@codewithmukesh.com",
+                    //        From = "mohamed.salman@itelasoft.com",
                     //        To = user.Email,
                     //        Body = string.Format("Please confirm your account by <a href='{0}'>clicking here</a>.", verificationUri),
                     //        Subject = "Confirm Registration"
@@ -94,7 +92,7 @@ namespace PermissionAuthDemo.Server.Services.User
                     //    return await Result<string>.SuccessAsync(user.Id, string.Format("User {0} Registered. Please check your Mailbox to verify!", user.UserName));
                     //}
 
-                    return await Result<string>.SuccessAsync(user.Id, string.Format("User {0} Registered.", user.UserName));
+                    return await Result<string>.SuccessAsync(user.Id, $"User {user.UserName} Registered.");
                 }
                 else
                 {
@@ -103,7 +101,7 @@ namespace PermissionAuthDemo.Server.Services.User
             }
             else
             {
-                return await Result.FailAsync(string.Format("Email {0} is already registered.", request.Email));
+                return await Result.FailAsync($"Email {request.Email} is already registered.");
             }
         }
 
@@ -118,16 +116,16 @@ namespace PermissionAuthDemo.Server.Services.User
         //    return verificationUri;
         //}
 
-        public async Task<IResult<UserResponse>> GetAsync(string userId)
+        public async Task<IResult<UserResponse>> GetAsync(string userId, CancellationToken cancellationToken)
         {
-            var user = await _userManager.Users.Where(u => u.Id == userId).FirstOrDefaultAsync();
+            var user = await _userManager.Users.Where(u => u.Id == userId).FirstOrDefaultAsync(cancellationToken: cancellationToken);
             var result = _mapper.Map<UserResponse>(user);
             return await Result<UserResponse>.SuccessAsync(result);
         }
 
-        public async Task<IResult> ToggleUserStatusAsync(ToggleUserStatusRequest request)
+        public async Task<IResult> ToggleUserStatusAsync(ToggleUserStatusRequest request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.Users.Where(u => u.Id == request.UserId).FirstOrDefaultAsync();
+            var user = await _userManager.Users.Where(u => u.Id == request.UserId).FirstOrDefaultAsync(cancellationToken: cancellationToken);
             var isAdmin = await _userManager.IsInRoleAsync(user, RoleConstants.AdministratorRole);
             if (isAdmin)
             {
@@ -141,11 +139,11 @@ namespace PermissionAuthDemo.Server.Services.User
             return await Result.SuccessAsync();
         }
 
-        public async Task<IResult<UserRolesResponse>> GetRolesAsync(string userId)
+        public async Task<IResult<UserRolesResponse>> GetRolesAsync(string userId, CancellationToken cancellationToken)
         {
             var viewModel = new List<UserRoleModel>();
             var user = await _userManager.FindByIdAsync(userId);
-            var roles = await _roleManager.Roles.ToListAsync();
+            var roles = await _roleManager.Roles.ToListAsync(cancellationToken: cancellationToken);
 
             foreach (var role in roles)
             {
@@ -168,10 +166,10 @@ namespace PermissionAuthDemo.Server.Services.User
             return await Result<UserRolesResponse>.SuccessAsync(result);
         }
 
-        public async Task<IResult> UpdateRolesAsync(UpdateUserRolesRequest request)
+        public async Task<IResult> UpdateRolesAsync(UpdateUserRolesRequest request, CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByIdAsync(request.UserId);
-            if (user.Email == "mukesh@blazorhero.com")
+            if (user.Email == "mohamed.salman@itelasoft.com")
             {
                 return await Result.FailAsync("Not Allowed.");
             }
@@ -196,24 +194,25 @@ namespace PermissionAuthDemo.Server.Services.User
             return await Result.SuccessAsync("Roles Updated");
         }
 
-        public async Task<IResult<string>> ConfirmEmailAsync(string userId, string code)
+        public async Task<IResult<string>> ConfirmEmailAsync(string userId, string code, CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByIdAsync(userId);
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
             var result = await _userManager.ConfirmEmailAsync(user, code);
             if (result.Succeeded)
             {
-                return await Result<string>.SuccessAsync(user.Id, string.Format("Account Confirmed for {0}. You can now use the /api/identity/token endpoint to generate JWT.", user.Email));
+                return await Result<string>.SuccessAsync(user.Id,
+                    $"Account Confirmed for {user.Email}. You can now use the /api/identity/token endpoint to generate JWT.");
             }
             else
             {
-                throw new ApiException(string.Format("An error occurred while confirming {0}", user.Email));
+                throw new ApiException($"An error occurred while confirming {user.Email}");
             }
         }
 
-        public async Task<int> GetCountAsync()
+        public async Task<int> GetCountAsync(CancellationToken cancellationToken)
         {
-            var count = await _userManager.Users.CountAsync();
+            var count = await _userManager.Users.CountAsync(cancellationToken: cancellationToken);
             return count;
         }
 

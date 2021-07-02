@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PermissionAuthDemo.Server.Services.User;
 using PermissionAuthDemo.Shared.Constants;
 using PermissionAuthDemo.Shared.Requests.Identity;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PermissionAuthDemo.Server.Controllers.Identity
@@ -25,9 +26,9 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// <returns>Status 200 OK</returns>
         [Authorize(Policy = Permissions.Users.View)]
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToke)
         {
-            var users = await _userService.GetAllAsync();
+            var users = await _userService.GetAllAsync(cancellationToke);
             return Ok(users);
         }
 
@@ -36,11 +37,11 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// </summary>
         /// <param name="id"></param>
         /// <returns>Status 200 OK</returns>
-        //[Authorize(Policy = Permissions.Users.View)]
+        [Authorize(Policy = Permissions.Users.View)]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(string id)
+        public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
         {
-            var user = await _userService.GetAsync(id);
+            var user = await _userService.GetAsync(id, cancellationToken);
             return Ok(user);
         }
 
@@ -51,9 +52,9 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// <returns>Status 200 OK</returns>
         [Authorize(Policy = Permissions.Users.View)]
         [HttpGet("roles/{id}")]
-        public async Task<IActionResult> GetRolesAsync(string id)
+        public async Task<IActionResult> GetRolesAsync(string id, CancellationToken cancellationToken)
         {
-            var userRoles = await _userService.GetRolesAsync(id);
+            var userRoles = await _userService.GetRolesAsync(id, cancellationToken);
             return Ok(userRoles);
         }
 
@@ -64,9 +65,9 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// <returns>Status 200 OK</returns>
         [Authorize(Policy = Permissions.Users.Edit)]
         [HttpPut("roles/{id}")]
-        public async Task<IActionResult> UpdateRolesAsync(UpdateUserRolesRequest request)
+        public async Task<IActionResult> UpdateRolesAsync(UpdateUserRolesRequest request, CancellationToken cancellationToken)
         {
-            return Ok(await _userService.UpdateRolesAsync(request));
+            return Ok(await _userService.UpdateRolesAsync(request, cancellationToken));
         }
 
         /// <summary>
@@ -76,10 +77,10 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// <returns>Status 200 OK</returns>
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> RegisterAsync(RegisterRequest request)
+        public async Task<IActionResult> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken)
         {
             var origin = Request.Headers["origin"];
-            return Ok(await _userService.RegisterAsync(request, origin));
+            return Ok(await _userService.RegisterAsync(request, origin, cancellationToken));
         }
 
         /// <summary>
@@ -90,9 +91,9 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// <returns>Status 200 OK</returns>
         [HttpGet("confirm-email")]
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmailAsync([FromQuery] string userId, [FromQuery] string code)
+        public async Task<IActionResult> ConfirmEmailAsync([FromQuery] string userId, [FromQuery] string code, CancellationToken cancellationToken)
         {
-            return Ok(await _userService.ConfirmEmailAsync(userId, code));
+            return Ok(await _userService.ConfirmEmailAsync(userId, code, cancellationToken));
         }
 
         /// <summary>
@@ -101,9 +102,9 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// <param name="request"></param>
         /// <returns>Status 200 OK</returns>
         [HttpPost("toggle-status")]
-        public async Task<IActionResult> ToggleUserStatusAsync(ToggleUserStatusRequest request)
+        public async Task<IActionResult> ToggleUserStatusAsync(ToggleUserStatusRequest request, CancellationToken cancellationToken)
         {
-            return Ok(await _userService.ToggleUserStatusAsync(request));
+            return Ok(await _userService.ToggleUserStatusAsync(request, cancellationToken));
         }
     }
 }

@@ -12,6 +12,7 @@ using PermissionAuthDemo.Shared.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PermissionAuthDemo.Server.Services.Role
@@ -38,13 +39,13 @@ namespace PermissionAuthDemo.Server.Services.Role
             _currentUserService = currentUserService;
         }
 
-        public async Task<Result<string>> DeleteAsync(string id)
+        public async Task<Result<string>> DeleteAsync(string id, CancellationToken cancellationToken)
         {
             var existingRole = await _roleManager.FindByIdAsync(id);
             if (existingRole.Name != RoleConstants.AdministratorRole && existingRole.Name != RoleConstants.BasicRole)
             {
                 bool roleIsNotUsed = true;
-                var allUsers = await _userManager.Users.ToListAsync();
+                var allUsers = await _userManager.Users.ToListAsync(cancellationToken: cancellationToken);
                 foreach (var user in allUsers)
                 {
                     if (await _userManager.IsInRoleAsync(user, existingRole.Name))
@@ -69,14 +70,14 @@ namespace PermissionAuthDemo.Server.Services.Role
             }
         }
 
-        public async Task<Result<List<RoleResponse>>> GetAllAsync()
+        public async Task<Result<List<RoleResponse>>> GetAllAsync(CancellationToken cancellationToken)
         {
-            var roles = await _roleManager.Roles.ToListAsync();
+            var roles = await _roleManager.Roles.ToListAsync(cancellationToken: cancellationToken);
             var rolesResponse = _mapper.Map<List<RoleResponse>>(roles);
             return await Result<List<RoleResponse>>.SuccessAsync(rolesResponse);
         }
 
-        public async Task<Result<PermissionResponse>> GetAllPermissionsAsync(string roleId)
+        public async Task<Result<PermissionResponse>> GetAllPermissionsAsync(string roleId, CancellationToken cancellationToken)
         {
             var model = new PermissionResponse();
             var allPermissions = GetAllPermissions();
@@ -85,7 +86,7 @@ namespace PermissionAuthDemo.Server.Services.Role
             {
                 model.RoleId = role.Id;
                 model.RoleName = role.Name;
-                var roleClaimsResult = await _roleClaimService.GetAllByRoleIdAsync(role.Id);
+                var roleClaimsResult = await _roleClaimService.GetAllByRoleIdAsync(role.Id, cancellationToken);
                 if (roleClaimsResult.Succeeded)
                 {
                     var roleClaims = roleClaimsResult.Data;
@@ -132,14 +133,14 @@ namespace PermissionAuthDemo.Server.Services.Role
             return allPermissions;
         }
 
-        public async Task<Result<RoleResponse>> GetByIdAsync(string id)
+        public async Task<Result<RoleResponse>> GetByIdAsync(string id, CancellationToken cancellationToken)
         {
-            var roles = await _roleManager.Roles.SingleOrDefaultAsync(x => x.Id == id);
+            var roles = await _roleManager.Roles.SingleOrDefaultAsync(x => x.Id == id, cancellationToken: cancellationToken);
             var rolesResponse = _mapper.Map<RoleResponse>(roles);
             return await Result<RoleResponse>.SuccessAsync(rolesResponse);
         }
 
-        public async Task<Result<string>> SaveAsync(RoleRequest request)
+        public async Task<Result<string>> SaveAsync(RoleRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.Id))
             {
@@ -170,7 +171,7 @@ namespace PermissionAuthDemo.Server.Services.Role
             }
         }
 
-        public async Task<Result<string>> UpdatePermissionsAsync(PermissionRequest request)
+        public async Task<Result<string>> UpdatePermissionsAsync(PermissionRequest request, CancellationToken cancellationToken)
         {
             try
             {
@@ -178,7 +179,7 @@ namespace PermissionAuthDemo.Server.Services.Role
                 var role = await _roleManager.FindByIdAsync(request.RoleId);
                 if (role.Name == RoleConstants.AdministratorRole)
                 {
-                    var currentUser = await _userManager.Users.SingleAsync(x => x.Id == _currentUserService.UserId);
+                    var currentUser = await _userManager.Users.SingleAsync(x => x.Id == _currentUserService.UserId, cancellationToken: cancellationToken);
                     if (await _userManager.IsInRoleAsync(currentUser, RoleConstants.AdministratorRole))
                     {
                         return await Result<string>.FailAsync("Not allowed to modify Permissions for this Role.");
@@ -212,7 +213,7 @@ namespace PermissionAuthDemo.Server.Services.Role
                     }
                 }
 
-                var addedClaims = await _roleClaimService.GetAllByRoleIdAsync(role.Id);
+                var addedClaims = await _roleClaimService.GetAllByRoleIdAsync(role.Id, cancellationToken);
                 if (addedClaims.Succeeded)
                 {
                     foreach (var claim in selectedClaims)
@@ -222,7 +223,7 @@ namespace PermissionAuthDemo.Server.Services.Role
                         {
                             claim.Id = addedClaim.Id;
                             claim.RoleId = addedClaim.RoleId;
-                            var saveResult = await _roleClaimService.SaveAsync(claim);
+                            var saveResult = await _roleClaimService.SaveAsync(claim, cancellationToken);
                             if (!saveResult.Succeeded)
                             {
                                 errors.AddRange(saveResult.Messages);
@@ -248,9 +249,9 @@ namespace PermissionAuthDemo.Server.Services.Role
             }
         }
 
-        public async Task<int> GetCountAsync()
+        public async Task<int> GetCountAsync(CancellationToken cancellationToken)
         {
-            var count = await _roleManager.Roles.CountAsync();
+            var count = await _roleManager.Roles.CountAsync(cancellationToken: cancellationToken);
             return count;
         }
     }

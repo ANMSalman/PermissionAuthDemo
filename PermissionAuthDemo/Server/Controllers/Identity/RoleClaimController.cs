@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PermissionAuthDemo.Server.Services.RoleClaim;
 using PermissionAuthDemo.Shared.Constants;
 using PermissionAuthDemo.Shared.Requests.Identity;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PermissionAuthDemo.Server.Controllers.Identity
@@ -24,9 +25,9 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// <returns>Status 200 OK</returns>
         [Authorize(Policy = Permissions.RoleClaims.View)]
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
-            var roleClaims = await _roleClaimService.GetAllAsync();
+            var roleClaims = await _roleClaimService.GetAllAsync(cancellationToken);
             return Ok(roleClaims);
         }
 
@@ -37,9 +38,9 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// <returns>Status 200 OK</returns>
         [Authorize(Policy = Permissions.RoleClaims.View)]
         [HttpGet("{roleId}")]
-        public async Task<IActionResult> GetAllByRoleId([FromRoute] string roleId)
+        public async Task<IActionResult> GetAllByRoleId([FromRoute] string roleId, CancellationToken cancellationToken)
         {
-            var response = await _roleClaimService.GetAllByRoleIdAsync(roleId);
+            var response = await _roleClaimService.GetAllByRoleIdAsync(roleId, cancellationToken);
             return Ok(response);
         }
 
@@ -50,9 +51,9 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// <returns>Status 200 OK </returns>
         [Authorize(Policy = Permissions.RoleClaims.Create)]
         [HttpPost]
-        public async Task<IActionResult> Post(RoleClaimRequest request)
+        public async Task<IActionResult> Post(RoleClaimRequest request, CancellationToken cancellationToken)
         {
-            var response = await _roleClaimService.SaveAsync(request);
+            var response = await _roleClaimService.SaveAsync(request, cancellationToken);
             return Ok(response);
         }
 
@@ -63,9 +64,9 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// <returns>Status 200 OK</returns>
         [Authorize(Policy = Permissions.RoleClaims.Delete)]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
-            var response = await _roleClaimService.DeleteAsync(id);
+            var response = await _roleClaimService.DeleteAsync(id, cancellationToken);
             return Ok(response);
         }
     }

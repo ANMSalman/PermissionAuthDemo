@@ -13,6 +13,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PermissionAuthDemo.Server.Services.Token
@@ -34,7 +35,7 @@ namespace PermissionAuthDemo.Server.Services.Token
             _appConfig = appConfig.Value;
         }
 
-        public async Task<Result<TokenResponse>> LoginAsync(TokenRequest model)
+        public async Task<Result<TokenResponse>> LoginAsync(TokenRequest model, CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
@@ -55,31 +56,32 @@ namespace PermissionAuthDemo.Server.Services.Token
                 return await Result<TokenResponse>.FailAsync("Invalid Credentials.");
             }
 
-            user.RefreshToken = GenerateRefreshToken();
+            user.RefreshToken = GenerateRefreshToken(cancellationToken);
             user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
             await _userManager.UpdateAsync(user);
 
-            var token = await GenerateJwtAsync(user);
+            var token = await GenerateJwtAsync(user, cancellationToken);
             var response = new TokenResponse { Token = token, RefreshToken = user.RefreshToken, UserImageURL = user.ProfilePictureDataUrl };
             return await Result<TokenResponse>.SuccessAsync(response);
         }
 
-        public async Task<Result<TokenResponse>> GetRefreshTokenAsync(RefreshTokenRequest model)
+        public async Task<Result<TokenResponse>> GetRefreshTokenAsync(RefreshTokenRequest model, CancellationToken cancellationToken)
         {
             if (model is null)
             {
                 return await Result<TokenResponse>.FailAsync("Invalid Client Token.");
             }
-            var userPrincipal = GetPrincipalFromExpiredToken(model.Token);
+            var userPrincipal = GetPrincipalFromExpiredToken(model.Token, cancellationToken);
             var userEmail = userPrincipal.FindFirstValue(ClaimTypes.Email);
             var user = await _userManager.FindByEmailAsync(userEmail);
             if (user == null)
                 return await Result<TokenResponse>.FailAsync("User Not Found.");
             if (user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
                 return await Result<TokenResponse>.FailAsync("Invalid Client Token.");
-            var token = GenerateEncryptedToken(GetSigningCredentials(), await GetClaimsAsync(user));
 
-            user.RefreshToken = GenerateRefreshToken();
+            var token = await GenerateJwtAsync(user, cancellationToken);
+
+            user.RefreshToken = GenerateRefreshToken(cancellationToken);
             user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
             await _userManager.UpdateAsync(user);
 
@@ -87,13 +89,13 @@ namespace PermissionAuthDemo.Server.Services.Token
             return await Result<TokenResponse>.SuccessAsync(response);
         }
 
-        private async Task<string> GenerateJwtAsync(AppUser user)
+        private async Task<string> GenerateJwtAsync(AppUser user, CancellationToken cancellationToken)
         {
-            var token = GenerateEncryptedToken(GetSigningCredentials(), await GetClaimsAsync(user));
+            var token = GenerateEncryptedToken(GetSigningCredentials(cancellationToken), await GetClaimsAsync(user, cancellationToken), cancellationToken);
             return token;
         }
 
-        private async Task<IEnumerable<Claim>> GetClaimsAsync(AppUser user)
+        private async Task<IEnumerable<Claim>> GetClaimsAsync(AppUser user, CancellationToken cancellationToken)
         {
             var userClaims = await _userManager.GetClaimsAsync(user);
             var roles = await _userManager.GetRolesAsync(user);
@@ -122,7 +124,7 @@ namespace PermissionAuthDemo.Server.Services.Token
             return claims;
         }
 
-        private string GenerateRefreshToken()
+        private string GenerateRefreshToken(CancellationToken cancellationToken)
         {
             var randomNumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();
@@ -130,7 +132,7 @@ namespace PermissionAuthDemo.Server.Services.Token
             return Convert.ToBase64String(randomNumber);
         }
 
-        private string GenerateEncryptedToken(SigningCredentials signingCredentials, IEnumerable<Claim> claims)
+        private string GenerateEncryptedToken(SigningCredentials signingCredentials, IEnumerable<Claim> claims, CancellationToken cancellationToken)
         {
             var token = new JwtSecurityToken(
                claims: claims,
@@ -141,7 +143,7 @@ namespace PermissionAuthDemo.Server.Services.Token
             return encryptedToken;
         }
 
-        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token, CancellationToken cancellationToken)
         {
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -164,7 +166,7 @@ namespace PermissionAuthDemo.Server.Services.Token
             return principal;
         }
 
-        private SigningCredentials GetSigningCredentials()
+        private SigningCredentials GetSigningCredentials(CancellationToken cancellationToken)
         {
             var secret = Encoding.UTF8.GetBytes(_appConfig.Secret);
             return new SigningCredentials(new SymmetricSecurityKey(secret), SecurityAlgorithms.HmacSha256);

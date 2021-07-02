@@ -2,6 +2,7 @@
 using PermissionAuthDemo.Server.Services.CurrentUser;
 using PermissionAuthDemo.Server.Services.Token;
 using PermissionAuthDemo.Shared.Requests.Identity;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PermissionAuthDemo.Server.Controllers.Identity
@@ -23,9 +24,9 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// <param name="model"></param>
         /// <returns>Status 200 OK</returns>
         [HttpPost]
-        public async Task<ActionResult> Get(TokenRequest model)
+        public async Task<ActionResult> Get(TokenRequest model, CancellationToken cancellationToken)
         {
-            var response = await _identityService.LoginAsync(model);
+            var response = await _identityService.LoginAsync(model, cancellationToken);
             return Ok(response);
         }
 
@@ -35,9 +36,9 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
         /// <param name="model"></param>
         /// <returns>Status 200 OK</returns>
         [HttpPost("refresh")]
-        public async Task<ActionResult> Refresh([FromBody] RefreshTokenRequest model)
+        public async Task<ActionResult> Refresh([FromBody] RefreshTokenRequest model, CancellationToken cancellationToken)
         {
-            var response = await _identityService.GetRefreshTokenAsync(model);
+            var response = await _identityService.GetRefreshTokenAsync(model, cancellationToken);
             return Ok(response);
         }
     }
