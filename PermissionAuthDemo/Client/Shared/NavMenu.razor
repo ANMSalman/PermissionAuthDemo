@@ -1,6 +1,8 @@
 ﻿@using System.Security.Claims
 
-<MudNavMenu>
+<UserCard></UserCard>
+<MudDivider></MudDivider>
+<MudNavMenu Class="mt-3">
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Home">Home</MudNavLink>
    
     @if (_canViewUsers || _canViewRoles)

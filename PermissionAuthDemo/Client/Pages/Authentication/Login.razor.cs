@@ -26,11 +26,7 @@ namespace PermissionAuthDemo.Client.Pages.Authentication
         private async Task SubmitAsync()
         {
             var result = await _authenticationManager.Login(_tokenModel);
-            if (result.Succeeded)
-            {
-                _snackBar.Add($"Welcome {_tokenModel.Email}", Severity.Success);
-            }
-            else
+            if (!result.Succeeded)
             {
                 foreach (var message in result.Messages)
                 {

@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
-using PermissionAuthDemo.Client;
 using PermissionAuthDemo.Client.Authentication;
 using PermissionAuthDemo.Client.Managers;
+using PermissionAuthDemo.Client.Managers.Preference;
 using PermissionAuthDemo.Shared.Constants;
 using System;
 using System.Globalization;
@@ -21,7 +21,7 @@ namespace BlazorHero.CleanArchitecture.Client.Extensions
     public static class WebAssemblyHostBuilderExtensions
     {
         private const string ClientName = "PermissionAuthDemo.API";
-        
+
 
         public static WebAssemblyHostBuilder AddClientServices(this WebAssemblyHostBuilder builder)
         {
@@ -38,6 +38,7 @@ namespace BlazorHero.CleanArchitecture.Client.Extensions
                     configuration.SnackbarConfiguration.ShowCloseIcon = false;
                 })
                 .AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies())
+                .AddScoped<ClientPreferenceManager>()
                 .AddScoped<AppUserStateProvider>()
                 .AddScoped<AuthenticationStateProvider, AppUserStateProvider>()
                 .AddManagers()

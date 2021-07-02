@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -8,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using PermissionAuthDemo.Server.Auth;
 using PermissionAuthDemo.Server.Configuration;
 using PermissionAuthDemo.Server.Data;
 using PermissionAuthDemo.Server.Data.Entities;
@@ -18,9 +16,12 @@ using PermissionAuthDemo.Server.Services.Role;
 using PermissionAuthDemo.Server.Services.RoleClaim;
 using PermissionAuthDemo.Server.Services.Token;
 using PermissionAuthDemo.Server.Services.User;
+using PermissionAuthDemo.Shared.Constants;
 using PermissionAuthDemo.Shared.Wrappers;
 using System;
+using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,8 +58,8 @@ namespace PermissionAuthDemo.Server.Extensions
         internal static IServiceCollection AddIdentity(this IServiceCollection services)
         {
             services
-                .AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>()
-                .AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>()
+                //.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>()
+                //.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>()
                 .AddIdentity<AppUser, AppRole>(options =>
                 {
                     options.Password.RequiredLength = 6;
@@ -155,7 +156,20 @@ namespace PermissionAuthDemo.Server.Extensions
                         },
                     };
                 });
-            services.AddAuthorization();
+
+            services.AddAuthorization(options =>
+            {
+                foreach (var prop in typeof(Permissions).GetNestedTypes().SelectMany(c =>
+                    c.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)))
+                {
+                    var propertyValue = prop.GetValue(null);
+                    if (propertyValue is not null)
+                    {
+                        options.AddPolicy(propertyValue.ToString(),
+                            policy => policy.RequireClaim(ApplicationClaimTypes.Permission, propertyValue.ToString()));
+                    }
+                }
+            });
             return services;
         }
 

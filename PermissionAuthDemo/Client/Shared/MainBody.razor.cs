@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using PermissionAuthDemo.Client.Extensions;
-using PermissionAuthDemo.Client.Shared.Dialogs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -18,6 +17,8 @@ namespace PermissionAuthDemo.Client.Shared
         private string UniversityName { get; set; }
         private char FirstLetterOfName { get; set; }
 
+        [Parameter]
+        public EventCallback OnDarkModeToggle { get; set; }
 
         private List<BreadcrumbItem> breadcrumb = new List<BreadcrumbItem>();
 
@@ -53,6 +54,11 @@ namespace PermissionAuthDemo.Client.Shared
             _drawerOpen = !_drawerOpen;
         }
 
+        public async Task ToggleDarkMode()
+        {
+            await OnDarkModeToggle.InvokeAsync();
+        }
+
         private void Logout()
         {
             var parameters = new DialogParameters
@@ -65,7 +71,7 @@ namespace PermissionAuthDemo.Client.Shared
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true };
 
-            _dialogService.Show<Logout>("Logout", parameters, options);
+            _dialogService.Show<Dialogs.Logout>("Logout", parameters, options);
         }
     }
 }

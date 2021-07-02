@@ -1,4 +1,4 @@
-﻿<MudAppBar Color="Color.Info" Elevation="4">
+﻿<MudAppBar Color="Color.Primary" Elevation="4">
     <MudHidden Breakpoint="Breakpoint.MdAndUp">
         <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
     </MudHidden>
@@ -15,6 +15,9 @@
         <MudText Typo="Typo.subtitle2" Class="ml-2">Admin Dashboard</MudText>
     </MudHidden>
     <MudAppBarSpacer />
+    <MudTooltip Text="Toggle Dark Mode">
+        <MudIconButton Icon="@Icons.Material.Filled.Brightness4" Color="Color.Inherit" OnClick="@ToggleDarkMode" />
+    </MudTooltip>
     <MudMenu Direction="Direction.Left" OffsetX="true" Dense="true" Class="mt-1 ml-4">
         <ActivatorContent>
             <MudAvatar Color="Color.Secondary">@FirstLetterOfName</MudAvatar>

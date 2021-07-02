@@ -10,6 +10,7 @@ namespace PermissionAuthDemo.Client.Shared
         private MudTheme _currentTheme = AppTheme.DefaultTheme;
         protected override async Task OnInitializedAsync()
         {
+            _currentTheme = await _clientPreferenceManager.GetCurrentThemeAsync();
             _interceptor.RegisterEvent();
             await Task.CompletedTask;
         }
@@ -17,6 +18,14 @@ namespace PermissionAuthDemo.Client.Shared
         public void Dispose()
         {
             _interceptor.DisposeEvent();
+        }
+
+        private async Task DarkMode()
+        {
+            bool isDarkMode = await _clientPreferenceManager.ToggleDarkModeAsync();
+            _currentTheme = isDarkMode
+                ? AppTheme.DefaultTheme
+                : AppTheme.DarkTheme;
         }
     }
 }
