@@ -17,5 +17,5 @@ For more info read:
 * https://codewithmukesh.com/blog/permission-based-authorization-in-aspnet-core/
 * https://www.zehntec.com/blog/permission-based-authorization-in-asp-net-core/
 
-For a full-fledged startup app with Clean Architecture and other cool fetures, checkout:
+For a full-fledged startup app with Clean Architecture and other cool features, checkout:
 * https://github.com/blazorhero/CleanArchitecture
