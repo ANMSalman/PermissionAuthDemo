@@ -61,7 +61,7 @@ namespace PermissionAuthDemo.Server.Services.Token
             await _userManager.UpdateAsync(user);
 
             var token = await GenerateJwtAsync(user, cancellationToken);
-            var response = new TokenResponse { Token = token, RefreshToken = user.RefreshToken, UserImageURL = user.ProfilePictureDataUrl };
+            var response = new TokenResponse { Token = token, RefreshToken = user.RefreshToken, UserImageURL = user.ProfilePictureDataUrl, RefreshTokenExpiryTime = user.RefreshTokenExpiryTime };
             return await Result<TokenResponse>.SuccessAsync(response);
         }
 
