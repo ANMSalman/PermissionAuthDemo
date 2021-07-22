@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PermissionAuthDemo.Server.Services.CurrentUser;
 using PermissionAuthDemo.Server.Services.Token;
 using PermissionAuthDemo.Shared.Requests.Identity;
 using System.Threading;
@@ -13,7 +12,7 @@ namespace PermissionAuthDemo.Server.Controllers.Identity
     {
         private readonly ITokenService _identityService;
 
-        public TokenController(ITokenService identityService, ICurrentUserService currentUserService)
+        public TokenController(ITokenService identityService)
         {
             _identityService = identityService;
         }
